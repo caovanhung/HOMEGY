@@ -92,7 +92,7 @@ Phân tích vòng lặp while (1/2)
 		}
    ```
 
-Đoạn mã bạn cung cấp là một phần của một vòng lặp trong hàm `while` trong một tác vụ (task) của ESP32. Mục tiêu là kiểm tra dữ liệu IR (hồng ngoại) nhận được từ một vòng đệm (`ring_buffer_ir`) và xử lý các tình huống khác nhau dựa trên giá trị nhận được. Sau đây là một phân tích chi tiết và một số cải tiến cho mã:
+Đoạn mã cung cấp là một phần của một vòng lặp trong hàm `while` trong một tác vụ (task) của ESP32. Mục tiêu là kiểm tra dữ liệu IR (hồng ngoại) nhận được từ một vòng đệm (`ring_buffer_ir`) và xử lý các tình huống khác nhau dựa trên giá trị nhận được. Sau đây là một phân tích chi tiết và một số cải tiến cho mã:
 
 ### Phân tích mã:
 1. **Kiểm tra trạng thái `isreceive`:**
@@ -209,7 +209,7 @@ Phân tích vòng lặp while (1/2)
    ```
 
 ### Đề xuất cải tiến:
-- **Kiểm tra `isreceive` mỗi lần:** Việc kiểm tra `isreceive != 1` trước khi tiếp tục có thể giúp tránh tình trạng dữ liệu không hợp lệ. Bạn có thể điều chỉnh trạng thái `isreceive` trong các tình huống khác nhau để tránh việc lặp lại vô tận.
+- **Kiểm tra `isreceive` mỗi lần:** Việc kiểm tra `isreceive != 1` trước khi tiếp tục có thể giúp tránh tình trạng dữ liệu không hợp lệ. Có thể điều chỉnh trạng thái `isreceive` trong các tình huống khác nhau để tránh việc lặp lại vô tận.
   
 - **Tối ưu vòng lặp:** Trong một số tình huống, bạn có thể muốn thêm một `vTaskDelay` ở đầu hoặc giữa các phần mã để tránh tác động lớn đến hiệu suất của hệ thống và giảm tải cho bộ xử lý.
 
@@ -217,7 +217,7 @@ Phân tích vòng lặp while (1/2)
 
 - **Tối ưu hóa mã IR:** Cần chú ý rằng các thao tác liên quan đến mã IR như `irrecv.decode` và `find_*` có thể cần được kiểm tra kỹ lưỡng để xử lý các tình huống mà mã IR không hợp lệ hoặc bị hỏng.
 
-Nhìn chung, đoạn mã của bạn khá rõ ràng, nhưng có thể cải thiện thêm về mặt hiệu suất và độ tin cậy bằng cách tối ưu hóa các phần kiểm tra trạng thái và đảm bảo bộ nhớ được cấp phát và giải phóng hợp lý.
+
 
 
 Phân tích vòng lặp while (2/2)   

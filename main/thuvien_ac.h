@@ -41,6 +41,7 @@
 #include "ir_Whirlpool.h"
 #include "IRsend.h"
 #include "IRrecv.h"
+#include "esp_log.h"
 
 #define _PANASONIC_AC	22
 #define _DAIKIN_AC		24

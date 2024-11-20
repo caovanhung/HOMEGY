@@ -14,6 +14,7 @@
 #include "ble_mesh_example_init.h"
 #include "settings.h"
 #include "storage/settings_nvs.h"
+#include "esp_log.h"
 
 #define TOP_DATA_MEMORY 255
 #define BOTTOM_DATA_MEMORY 114

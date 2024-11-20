@@ -1,59 +1,173 @@
 #include "thuvien.h"
 
+
+
+/*
+Hàm clear_memory_system() này có nhiệm vụ làm sạch một số bộ nhớ và các biến trong hệ thống. Sau đây là giải thích chi tiết từng phần của hàm:
+Vấn đề có thể xảy ra
+Ghi dữ liệu "!" vào bộ nhớ:
+	Khi ghi dữ liệu "!" vào bộ nhớ, hàm esp_partition_write_raw chỉ ghi 1 byte. Điều này có thể gây vấn đề nếu yêu cầu ghi lớn hơn 1 byte hoặc nếu bộ nhớ đã bị xóa trước đó. Bạn cần chắc chắn rằng việc ghi lại 1 byte là phù hợp với yêu cầu ứng dụng.
+Xóa phân vùng mà không kiểm tra xem phân vùng đó có hợp lệ không:
+	Nếu biến partition không được khởi tạo đúng cách (hoặc không có phân vùng nào được chỉ định), việc xóa và ghi dữ liệu vào phân vùng có thể gây lỗi. Bạn cần kiểm tra tính hợp lệ của partition trước khi thực hiện thao tác này.
+Sử dụng vùng bộ nhớ cố định:
+	Việc sử dụng 4096*i có thể gây xung đột nếu không tính toán chính xác phạm vi bộ nhớ cần thao tác. Điều này cần phải kiểm tra kỹ để đảm bảo không gây ghi đè lên các dữ liệu quan trọng.
+
+Cải tiến:
+Kiểm tra tính hợp lệ của phân vùng: Trước khi thao tác với các phân vùng bộ nhớ, bạn cần kiểm tra xem các phân vùng đó đã được khởi tạo và có sẵn không.
+Ghi dữ liệu nhiều byte thay vì chỉ 1 byte: Nếu cần ghi nhiều byte vào bộ nhớ sau khi xóa, bạn nên ghi dữ liệu lớn hơn thay vì chỉ ghi 1 byte. Điều này giúp tránh các vấn đề khi cần ghi thông tin lớn hơn.
+Giới hạn phạm vi bộ nhớ: Đảm bảo rằng bạn không ghi đè lên các vùng bộ nhớ quan trọng, bằng cách tính toán cẩn thận phạm vi bộ nhớ mà bạn cần thao tác.
+Cải tiến logic xóa dữ liệu: Thực hiện xóa và ghi một cách có kiểm soát để tránh sự cố với các phân vùng bộ nhớ.
+
+
+*/
 void clear_memory_system()
 {
 	uint16_t i;
-	for(i=0; i<512; i++) memory[i] = 1;
-	lockdevice = 0;
-	isota = 0;
-	for(i=0; i<100; i++) params[i] = 0;
-	for(i=0; i<32; i++) ssid[i] = '\0';
-	for(i=0; i<64; i++) password[i] = '\0';
-	wakeupvoice = 100;
-	for(i=0; i<21; i++)
-	{
-		esp_partition_erase_range(partition, 4096*i, 4096);
-		esp_partition_write_raw(partition, 4096*i, "!", 1);
-	}
+
+	// Xóa mảng memory[512] và gán giá trị 1
+    for(i = 0; i < 512; i++) {
+        memory[i] = 1;
+    }
+
+    // Đặt lại các trạng thái
+    lockdevice = 0;
+    isota = 0;
+
+    // Xóa mảng params[100] và gán giá trị 0
+    for(i = 0; i < 100; i++) {
+        params[i] = 0;
+    }
+
+    // Xóa mảng ssid[32] và password[64]
+    for(i = 0; i < 32; i++) {
+        ssid[i] = '\0';
+    }
+    for(i = 0; i < 64; i++) {
+        password[i] = '\0';
+    }
+
+    // Đặt lại giá trị wakeupvoice
+    wakeupvoice = 100;
+
+   // Kiểm tra tính hợp lệ của phân vùng partition trước khi thao tác
+    if (partition != NULL) {
+        // Xóa và ghi lại các vùng bộ nhớ trong phân vùng partition
+        for(i = 0; i < 21; i++) {
+            // Xóa 4096 bytes mỗi lần
+            esp_partition_erase_range(partition, 4096 * i, 4096);
+
+            // Ghi dữ liệu vào phân vùng sau khi xóa (ví dụ: ghi ký tự '!' vào mỗi vùng)
+            const char data_to_write[] = "!";
+            if (esp_partition_write_raw(partition, 4096 * i, data_to_write, sizeof(data_to_write) - 1) != ESP_OK) {
+				ESP_LOGE(LOG, "[clear_memory_system]Lỗi khi ghi vào phân vùng bộ nhớ ");
+            }
+        }
+    } else {
+		ESP_LOGE(LOG, "[clear_memory_system]Partition không hợp lệ. ");
+    }
 }
 
-void load_memory_system()
-{
-	uint8_t array[2];
-	esp_partition_read_raw(config_partition, 0, &memory, 512);
-	esp_partition_read_raw(config_partition, 512, &lockdevice, 1);
-	esp_partition_read_raw(config_partition, 513, &isota, 1);
-	esp_partition_read_raw(config_partition, 514, &array, 2);
-	gateway = 256*array[0]+array[1];
-    esp_partition_read_raw(config_partition, 516, &params, 100);
-    esp_partition_read_raw(config_partition, 616, &ssid, 32);
-    esp_partition_read_raw(config_partition, 648, &password, 64);
-    esp_partition_read_raw(config_partition, 712, &array, 2);
-    wakeupvoice = 256*array[0] + array[1];
-    esp_partition_read_raw(config_partition, 734, &array, 2);
-    indexresponse = 256*array[0] + array[1];
-    if(!indexresponse) indexresponse = 1;
+
+/*
+Hàm load_memory_system() được sử dụng để đọc dữ liệu từ phân vùng bộ nhớ (config_partition) và nạp chúng vào các biến toàn cục. 
+Mặc dù về cơ bản nó có thể thực hiện đúng mục đích, nhưng có một số điểm có thể cải tiến và cần lưu ý để tăng tính ổn định, hiệu quả và bảo mật.
+
+*/
+void load_memory_system() {
+    uint8_t array[2];
+    
+    // Đọc các đoạn bộ nhớ vào các mảng
+    if (esp_partition_read_raw(config_partition, 0, &memory, 512) != ESP_OK) {
+        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc memory\n");
+    }
+    
+    if (esp_partition_read_raw(config_partition, 512, &lockdevice, 1) != ESP_OK) {
+        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc lockdevice\n");
+    }
+    
+    if (esp_partition_read_raw(config_partition, 513, &isota, 1) != ESP_OK) {
+        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc isota\n");
+    }
+    
+    if (esp_partition_read_raw(config_partition, 514, &array, 2) != ESP_OK) {
+        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc gateway\n");
+    }
+    gateway = 256 * array[0] + array[1];
+
+    if (esp_partition_read_raw(config_partition, 516, &params, 100) != ESP_OK) {
+        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc params\n");
+    }
+
+    if (esp_partition_read_raw(config_partition, 616, &ssid, 32) != ESP_OK) {
+        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc ssid\n");
+    }
+
+    if (esp_partition_read_raw(config_partition, 648, &password, 64) != ESP_OK) {
+        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc password\n");
+    }
+
+    if (esp_partition_read_raw(config_partition, 712, &array, 2) != ESP_OK) {
+        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc wakeupvoice\n");
+    }
+    wakeupvoice = 256 * array[0] + array[1];
+
+    if (esp_partition_read_raw(config_partition, 734, &array, 2) != ESP_OK) {
+        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc indexresponse\n");
+    }
+    indexresponse = 256 * array[0] + array[1];
+    
+    if (!indexresponse) {
+        indexresponse = 1;
+    }
 }
 
+/*
+Hàm save_memory_system() thực hiện việc lưu các giá trị vào phân vùng bộ nhớ config_partition.
+
+*/
 void save_memory_system()
 {
 	uint8_t array[2];
 	esp_partition_erase_range(config_partition, 0, 4096);
-	esp_partition_write_raw(config_partition, 0, &memory, 512);
-	esp_partition_write_raw(config_partition, 512, &lockdevice, 1);
-	esp_partition_write_raw(config_partition, 513, &isota, 1);
+
+	// Write memory data (512 bytes)
+    if (memory != NULL) {
+        esp_partition_write_raw(config_partition, 0, &memory, 512);
+    }
+    if (lockdevice != NULL) {
+        esp_partition_write_raw(config_partition, 512, &lockdevice, 1);
+    }
+	if (isota != NULL) {
+        esp_partition_write_raw(config_partition, 513, &isota, 1);
+    }
+
+
 	array[0] = gateway / 256;
 	array[1] = gateway % 256;
-	esp_partition_write_raw(config_partition, 514, &array, 2);
-	esp_partition_write_raw(config_partition, 516, &params, 100);
-	esp_partition_write_raw(config_partition, 616, &ssid, 32);
-    esp_partition_write_raw(config_partition, 648, &password, 64);
+	if (array != NULL) {
+        esp_partition_write_raw(config_partition, 514, &array, 2);
+    }
+	if (params != NULL) {
+        esp_partition_write_raw(config_partition, 516, &params, 100);
+    }
+	if (ssid != NULL) {
+        esp_partition_write_raw(config_partition, 616, &ssid, 32);
+    }
+	if (password != NULL) {
+        esp_partition_write_raw(config_partition, 648, &password, 64);
+    }
+	
     array[0] = wakeupvoice / 256;
 	array[1] = wakeupvoice % 256;
-    esp_partition_write_raw(config_partition, 712, &array, 2);
+	if (array != NULL) {
+        esp_partition_write_raw(config_partition, 712, &array, 2);
+    }
+
     array[0] = indexresponse / 256;
 	array[1] = indexresponse % 256;
-    esp_partition_write_raw(config_partition, 734, &array, 2);
+	if (array != NULL) {
+        esp_partition_write_raw(config_partition, 734, &array, 2);
+    }
     esp_partition_write_raw(config_partition, 736, "!", 1);
 }
 
