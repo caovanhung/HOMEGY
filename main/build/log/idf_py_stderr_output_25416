@@ -1,0 +1,6 @@
+CMake Error at CMakeLists.txt:7:
+  Parse error.  Expected "(", got newline with text "
+
+  ".
+
+

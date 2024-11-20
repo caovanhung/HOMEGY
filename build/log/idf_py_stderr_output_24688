@@ -1,0 +1,11 @@
+CMake Error at C:/Users/Admin/esp/v5.3.1/esp-idf/tools/cmake/component.cmake:314 (message):
+  Include directory
+  'C:/Users/Admin/Desktop/Homegy/IR-Voice/components/IRremoteESP8266/include'
+  is not a directory.
+Call Stack (most recent call first):
+  C:/Users/Admin/esp/v5.3.1/esp-idf/tools/cmake/component.cmake:482 (__component_add_include_dirs)
+  C:/Users/Admin/esp/v5.3.1/esp-idf/tools/cmake/component.cmake:653 (idf_component_register)
+  components/IRremoteESP8266/CMakeLists.txt:4 (register_component)
+
+
+ninja: error: rebuilding 'build.ninja': subcommand failed
