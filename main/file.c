@@ -59,11 +59,11 @@ void clear_memory_system()
             // Ghi dữ liệu vào phân vùng sau khi xóa (ví dụ: ghi ký tự '!' vào mỗi vùng)
             const char data_to_write[] = "!";
             if (esp_partition_write_raw(partition, 4096 * i, data_to_write, sizeof(data_to_write) - 1) != ESP_OK) {
-				ESP_LOGE(LOG, "[clear_memory_system]Lỗi khi ghi vào phân vùng bộ nhớ ");
+				// ESP_LOGE(LOG, "[clear_memory_system]Lỗi khi ghi vào phân vùng bộ nhớ ");
             }
         }
     } else {
-		ESP_LOGE(LOG, "[clear_memory_system]Partition không hợp lệ. ");
+		// ESP_LOGE(LOG, "[clear_memory_system]Partition không hợp lệ. ");
     }
 }
 
@@ -78,41 +78,41 @@ void load_memory_system() {
     
     // Đọc các đoạn bộ nhớ vào các mảng
     if (esp_partition_read_raw(config_partition, 0, &memory, 512) != ESP_OK) {
-        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc memory\n");
+        // ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc memory\n");
     }
     
     if (esp_partition_read_raw(config_partition, 512, &lockdevice, 1) != ESP_OK) {
-        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc lockdevice\n");
+        // ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc lockdevice\n");
     }
     
     if (esp_partition_read_raw(config_partition, 513, &isota, 1) != ESP_OK) {
-        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc isota\n");
+        // ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc isota\n");
     }
     
     if (esp_partition_read_raw(config_partition, 514, &array, 2) != ESP_OK) {
-        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc gateway\n");
+        // ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc gateway\n");
     }
     gateway = 256 * array[0] + array[1];
 
     if (esp_partition_read_raw(config_partition, 516, &params, 100) != ESP_OK) {
-        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc params\n");
+        // ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc params\n");
     }
 
     if (esp_partition_read_raw(config_partition, 616, &ssid, 32) != ESP_OK) {
-        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc ssid\n");
+        // ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc ssid\n");
     }
 
     if (esp_partition_read_raw(config_partition, 648, &password, 64) != ESP_OK) {
-        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc password\n");
+        // ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc password\n");
     }
 
     if (esp_partition_read_raw(config_partition, 712, &array, 2) != ESP_OK) {
-        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc wakeupvoice\n");
+        // ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc wakeupvoice\n");
     }
     wakeupvoice = 256 * array[0] + array[1];
 
     if (esp_partition_read_raw(config_partition, 734, &array, 2) != ESP_OK) {
-        ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc indexresponse\n");
+        // ESP_LOGE(LOG,"[load_memory_system]Lỗi khi đọc indexresponse\n");
     }
     indexresponse = 256 * array[0] + array[1];
     
@@ -131,86 +131,160 @@ void save_memory_system()
 	esp_partition_erase_range(config_partition, 0, 4096);
 
 	// Write memory data (512 bytes)
-    if (memory != NULL) {
-        esp_partition_write_raw(config_partition, 0, &memory, 512);
-    }
-    if (lockdevice != NULL) {
-        esp_partition_write_raw(config_partition, 512, &lockdevice, 1);
-    }
-	if (isota != NULL) {
-        esp_partition_write_raw(config_partition, 513, &isota, 1);
-    }
+
+	esp_partition_write_raw(config_partition, 0, &memory, 512);
+
+	esp_partition_write_raw(config_partition, 512, &lockdevice, 1);
+
+	esp_partition_write_raw(config_partition, 513, &isota, 1);
+    
 
 
 	array[0] = gateway / 256;
 	array[1] = gateway % 256;
-	if (array != NULL) {
-        esp_partition_write_raw(config_partition, 514, &array, 2);
-    }
-	if (params != NULL) {
-        esp_partition_write_raw(config_partition, 516, &params, 100);
-    }
-	if (ssid != NULL) {
-        esp_partition_write_raw(config_partition, 616, &ssid, 32);
-    }
-	if (password != NULL) {
-        esp_partition_write_raw(config_partition, 648, &password, 64);
-    }
+
+	esp_partition_write_raw(config_partition, 514, &array, 2);
+
+	esp_partition_write_raw(config_partition, 516, &params, 100);
+
+	esp_partition_write_raw(config_partition, 616, &ssid, 32);
+
+	esp_partition_write_raw(config_partition, 648, &password, 64);
+    
 	
     array[0] = wakeupvoice / 256;
 	array[1] = wakeupvoice % 256;
-	if (array != NULL) {
-        esp_partition_write_raw(config_partition, 712, &array, 2);
-    }
+
+	esp_partition_write_raw(config_partition, 712, &array, 2);
+    
 
     array[0] = indexresponse / 256;
 	array[1] = indexresponse % 256;
-	if (array != NULL) {
-        esp_partition_write_raw(config_partition, 734, &array, 2);
-    }
+
+	esp_partition_write_raw(config_partition, 734, &array, 2);
+    
     esp_partition_write_raw(config_partition, 736, "!", 1);
 }
 
+
+
+/*
+Update thêm timeout 20s tự thoát khỏi vòng lặp nếu ko nhận được tối thiểu 2 byte qua UART
+*/
 void save_flash()
 {
 	size_t length_buffer_uart;
 	uint8_t data;
 	uint32_t position;
 	uint16_t i;
+	esp_err_t err;  // Biến kiểm tra lỗi cho các thao tác bộ nhớ
+	int64_t start_time, current_time;  // Biến lưu thời gian để kiểm tra timeout
+
 	uart_write_bytes(UART_NUM_0, "!", 1);
 	while(1)
 	{
+		// Bắt đầu đếm thời gian cho timeout 20 giây
+        start_time = esp_timer_get_time();
+        // Chờ nhận được ít nhất 2 byte từ UART với timeout 20 giây
 		while(1)
 		{
-			uart_get_buffered_data_len(UART_NUM_0, &length_buffer_uart);
-			if(length_buffer_uart > 1) break;
+            // Kiểm tra nếu đã nhận được đủ dữ liệu hoặc đã hết thời gian
+            current_time = esp_timer_get_time();
+            if (length_buffer_uart > 1 || (current_time - start_time) > TIME_OUT_F_SAVE_FLASH_US)  // 20.000.000 micro giây = 20 giây
+				// ESP_LOGE(LOG,"[save_flash] Timeout waiting for UART data\n");
+                break;
 		}
-		uart_read_bytes(UART_NUM_0, &data, 1, 100);
-		position = data;
-		uart_read_bytes(UART_NUM_0, &data, 1, 100);
-		position += 256*data;
-		memory[position] = 2;
-		position *= 4096;
-		esp_partition_erase_range(partition, position, 4096);
-		i = 0;
-		uart_write_bytes(UART_NUM_0, "!", 1);
-		while(1)
-		{
-			uart_get_buffered_data_len(UART_NUM_0, &length_buffer_uart);
-			if(length_buffer_uart)
-			{
-				uart_read_bytes(UART_NUM_0, &data, 1, 100);
-				if((data == '!') || (data == '$') || (i >= 4096)) break;
-				esp_partition_write_raw(partition, position+i, &data, 1);
-				i++;
-				if((data == ';') || (data == ',')) uart_write_bytes(UART_NUM_0, "!", 1);
-			}
-		}
-		esp_partition_write_raw(partition, position+i, "!", 1);
-		if((data == '!') || (i >= 4096)) break;
-		uart_write_bytes(UART_NUM_0, "!", 1);
-	}
-	save_memory_system();
+
+		// Nếu đã hết thời gian chờ mà vẫn không nhận đủ dữ liệu thì thoát
+        if ((current_time - start_time) > TIME_OUT_F_SAVE_FLASH_US){
+			// ESP_LOGE(LOG,"[save_flash] Timeout waiting for UART data\n");
+            return;  // Thoát do timeout
+        }
+
+        // Đọc vị trí cần ghi vào bộ nhớ flash
+        if (uart_read_bytes(UART_NUM_0, &data, 1, 100) == 1)
+            position = data;
+        else {
+			// ESP_LOGE(LOG,"[save_flash]Timeout on reading pisition low byte\n");
+            return;  // Lỗi đọc UART
+        }
+
+        if (uart_read_bytes(UART_NUM_0, &data, 1, 100) == 1)
+            position += 256 * data;
+        else {
+			// ESP_LOGE(LOG,"[save_flash]Timeout on reading position high byte\n");
+            return;  // Lỗi đọc UART
+        }
+
+        memory[position] = 2;  // Ghi vào mảng `memory`
+        position *= 4096;
+
+        // Xóa sector bộ nhớ flash tại vị trí
+        err = esp_partition_erase_range(partition, position, 4096);
+        if (err != ESP_OK){
+			// ESP_LOGE(LOG,"[save_flash]Flash erasa failed\n");
+            return;  // Lỗi khi xóa bộ nhớ flash
+        }
+
+        i = 0;
+        uart_write_bytes(UART_NUM_0, "!", 1);  // Báo hiệu sẵn sàng nhận dữ liệu
+
+        // Bắt đầu đếm thời gian cho quá trình nhận dữ liệu (timeout 20 giây)
+        start_time = esp_timer_get_time();
+
+        // Vòng lặp nhận dữ liệu và ghi vào bộ nhớ flash
+        while (1)
+        {
+            uart_get_buffered_data_len(UART_NUM_0, &length_buffer_uart);
+
+            // Kiểm tra nếu có dữ liệu hoặc timeout
+            current_time = esp_timer_get_time();
+            if (length_buffer_uart || (current_time - start_time) > TIME_OUT_F_SAVE_FLASH_US)  // 20 giây timeout
+                break;
+
+            if (uart_read_bytes(UART_NUM_0, &data, 1, 100) == 1){
+                // Kiểm tra ký tự kết thúc hoặc nếu đã ghi đủ 4096 byte
+                if ((data == '!') || (data == '$') || (i >= 4096)) break;
+
+                // Ghi dữ liệu vào bộ nhớ flash
+                err = esp_partition_write_raw(partition, position + i, &data, 1);
+                if (err != ESP_OK){
+					//ESP_LOGE(LOG,"[save_flash]Lash write failed\n");
+                    return;  // Lỗi khi ghi vào bộ nhớ flash
+                }
+
+                i++;
+
+                // Gửi lại ký tự báo hiệu nếu gặp dấu ';' hoặc ','
+                if ((data == ';') || (data == ','))
+                    uart_write_bytes(UART_NUM_0, "!", 1);
+            }
+            else {
+				//ESP_LOGE(LOG,"[save_flash]UART read timeout\n");
+                return;  // Lỗi đọc UART
+            }
+        }
+
+        // Nếu đã hết thời gian chờ mà không nhận được dữ liệu, thoát vòng lặp
+        if ((current_time - start_time) > TIME_OUT_F_SAVE_FLASH_US){
+			// ESP_LOGE(LOG,"[save_flash]Timeout while receiving data\n");
+            return;  // Thoát do timeout
+        }
+
+        // Ghi ký tự kết thúc vào bộ nhớ flash
+        err = esp_partition_write_raw(partition, position + i, "!", 1);
+        if (err != ESP_OK){
+			// ESP_LOGE(LOG,"[save_flash]Flash write failed at end\n");
+            return;  // Lỗi khi ghi ký tự kết thúc vào bộ nhớ flash
+        }
+
+        // Điều kiện kết thúc vòng lặp ngoài
+        if ((data == '!') || (i >= 4096)) break;
+        uart_write_bytes(UART_NUM_0, "!", 1);  // Báo hiệu tiếp tục nếu chưa kết thúc
+    }
+
+    save_memory_system();  // Gọi hàm lưu hệ thống bộ nhớ
+	//ESP_LOGE(LOG,"[save_flash]Done\n");
 }
 
 void load_flash(uint8_t idl, uint8_t idh, uint8_t index)
@@ -218,60 +292,72 @@ void load_flash(uint8_t idl, uint8_t idh, uint8_t index)
 	uint8_t data[6];
 	uint16_t i;
 	uint16_t id = idl+ 256*idh;
-	if(id == 65535)
-	{
+	esp_err_t err;  // Biến kiểm tra lỗi cho các thao tác bộ nhớ
+
+	if(id == 65535){
 		for(i=0; i<4096; i++)
 		{
-			esp_partition_read_raw(config_partition, i, data, 1);
+			err = esp_partition_read_raw(config_partition, i, data, 1);
+			if (err != ESP_OK)
+			{
+				return;  // Lỗi thao tác với flash
+			}
+
 			if(data[0] == '!') break;
 			uart_write_bytes(UART_NUM_0, data, 1);
 		}
 	}
-	else
-	{
+	else{
 		uint32_t position = 4096 * id;
-		if((memory[id] == 2) || (id < 2))
-		{
+		if((memory[id] == 2) || (id < 2)){
 			for(i=0; i<4096; i++)
 			{
-				esp_partition_read_raw(partition, position+i, data, 1);
+				err = esp_partition_read_raw(partition, position+i, data, 1);
+				if (err != ESP_OK)
+				{
+					return;  // Lỗi thao tác với flash
+				}
 				if(data[0] == '!') break;
 				uart_write_bytes(UART_NUM_0, data, 1);
 			}
 		}
-		else
-		{
-			if(memory[id] == 4)
-			{
-				if(index)
-				{
+		else{
+			if(memory[id] == 4){
+				if(index){
 					uint8_t matrix[4] = {0, 0, 0, 0};
 					uint8_t j;
-					if(find_raw_key(matrix, idl, idh, index))
-					{
+					if(find_raw_key(matrix, idl, idh, index)){
 						for(j=0; j<2; j++)
 						{
-							if(matrix[2*j] && matrix[2*j+1])
-							{
+							if(matrix[2*j] && matrix[2*j+1]){
 								position = 4096*matrix[2*j]+512*matrix[2*j+1];
 								for(i=0; i<512; i+=2)
 								{
 									esp_partition_read_raw(partition, position+i, data, 2);
 									uart_write_bytes(UART_NUM_0, data, 2);
-									if((!data[0]) && (!data[1])) break;
+									if((!data[0]) && (!data[1])){
+										break;
+									}
 								}
-								if((!data[0]) && (!data[1])) break;
+								if((!data[0]) && (!data[1])) {
+									break;
+								}
 							}
 						}
 					}
 				}
-				else
-				{
+				else{
 					position = 4096*id;
 					for(i=0; i<4096; i+=6)
 					{
-						esp_partition_read_raw(partition, position+i, data, 6);
-						if(data[0] == '!') break;
+						err = esp_partition_read_raw(partition, position+i, data, 6);
+						if (err != ESP_OK)
+						{
+							return;  // Lỗi thao tác với flash
+						}
+						if(data[0] == '!') {
+							break;
+						}
 						uart_write_bytes(UART_NUM_0, data, 6);
 					}
 				}
@@ -282,16 +368,23 @@ void load_flash(uint8_t idl, uint8_t idh, uint8_t index)
 
 void clear_flash(uint8_t idl, uint8_t idh)
 {
+	esp_err_t err;  // Biến kiểm tra lỗi cho các thao tác bộ nhớ
 	uint16_t id = idl + 256*idh;
-	if(id < 65535)
-	{
-		esp_partition_erase_range(partition, 4096*id, 4096);
-		esp_partition_write_raw(partition, 4096*id, "!", 1);
+	if(id < 65535){
+		err = esp_partition_erase_range(partition, 4096*id, 4096);
+		if (err != ESP_OK){
+			return;  // Lỗi thao tác với flash
+		}
+		err = esp_partition_write_raw(partition, 4096*id, "!", 1);
+		if (err != ESP_OK){
+			return;  // Lỗi thao tác với flash
+		}
 		memory[id] = 1;
 	}
-	else
-	{
-		if(id == 65535) clear_memory_system();
+	else{
+		if(id == 65535) {
+			clear_memory_system();
+		}
 	}
 	save_memory_system();
 }
@@ -301,7 +394,9 @@ uint8_t find_list_remote(uint8_t idl, uint8_t idh, uint8_t index)
 	uint8_t i;
 	for(i=0; i<100; i+=4)
 	{
-		if((params[i+1] == idl) && (params[i+2] == idh) && (params[i+3] == index)) return 1;
+		if((params[i+1] == idl) && (params[i+2] == idh) && (params[i+3] == index)) {
+			return 1;
+		}
 	}
 	return 0;
 }
@@ -325,9 +420,8 @@ void send_list_remote()
 	remote[1] = 0;
 	for(i=0; i<100; i+=4)
 	{
-		if(params[i])
-		{
-			remote[index] = params[i];
+		if(params[i]){
+			remote[index] 	= params[i];
 			remote[index+1] = params[i+1];
 			remote[index+2] = params[i+2];
 			remote[index+2] = params[i+3];
@@ -439,13 +533,17 @@ uint8_t delete_all_params_remote()
 
 uint8_t find_type_raw(uint8_t idl, uint8_t idh)
 {
+	esp_err_t err;
 	if((memory[idl+256*idh] != 4) || (idl+256*idh < 2) || (idl+256*idh > 20) ) return 0;
 	uint32_t position = 4096*(idl+256*idh);
 	uint8_t cache[6];
 	uint16_t i;
 	for(i=0; i<4096; i+=6)
 	{
-		esp_partition_read_raw(partition, position+i, cache, 6);
+		err = esp_partition_read_raw(partition, position+i, cache, 6);
+		if (err != ESP_OK){
+			return 0;  // Lỗi đọc flash
+		}
 		if(cache[0] == '!') break;
 		if(cache[1] > 50) return 2;
 	}
@@ -454,13 +552,17 @@ uint8_t find_type_raw(uint8_t idl, uint8_t idh)
 
 uint8_t find_raw_key(uint8_t* matrix, uint8_t idl, uint8_t idh, uint8_t key)
 {
+	esp_err_t err;
 	if((idl+256*idh < 2) || (idl+256*idh > 20) || (memory[idl+256*idh] != 4) || (!key)) return 0;
 	uint32_t position = 4096*(idl+256*idh);
 	uint8_t cache[6];
 	uint16_t i;
 	for(i=0; i<4096; i+=6)
 	{
-		esp_partition_read_raw(partition, position+i, cache, 6);
+		err = esp_partition_read_raw(partition, position+i, cache, 6);
+		if (err != ESP_OK){
+			return 0;  // Lỗi đọc flash
+		}
 		if(cache[0] == '!') return 0;
 		if(cache[0] == RECV_MODE_CMD)
 		{
@@ -483,13 +585,17 @@ uint8_t check_raw_key(uint8_t x, uint8_t y)
 	uint8_t cache[6];
 	uint8_t i;
 	uint16_t j;
+	esp_err_t err;
 	for(i=2; i<21; i++)
 	{
 		if(memory[i] != 4) continue;
 		position = 4096*i;
 		for(j=0; j<4096; j+=6)
 		{
-			esp_partition_read_raw(partition, position+j, cache, 6);
+			err = esp_partition_read_raw(partition, position+j, cache, 6);
+			if (err != ESP_OK){
+				return 0;  // Lỗi đọc flash
+			}
 			if(cache[0] == '!') break;
 			if(cache[0] == RECV_MODE_CMD)
 			{
@@ -500,52 +606,97 @@ uint8_t check_raw_key(uint8_t x, uint8_t y)
 	return 1; 
 }
 
+
+/*
+Fix thêm trường hợp malloc không thành công thì return
+Fix thêm trường hợp không check được key cần xoá thì return luôn
+
+*/
 uint8_t delete_raw_key(uint8_t idl, uint8_t idh, uint8_t key)
 {
-	if((idl+256*idh < 2) || (idl+256*idh > 20) || (memory[idl+256*idh] != 4) || (!key)) return 0;
-	uint16_t i;
-	uint32_t position = 4096*(idl+256*idh);
-	uint8_t* cache = (uint8_t*)malloc(4096);
-	esp_partition_read_raw(partition, position, cache, 4096);
-	for(i=0; i<4096; i+=6)
-	{
-		if(cache[i] == '!')
-		{
-			free(cache);
-			cache = NULL;
-			return 0;
-		}
-		if((cache[i] == RECV_MODE_CMD) && (cache[i+1] == key))
-		{
-			cache[i] = 0;
-			break;
-		}
-	}
-	uint16_t j = 0;
-	esp_partition_erase_range(partition, position, 4096);
-	for(i=0; i<4096; i+=6)
-	{
-		if(cache[i] == '!')
-		{
-			esp_partition_write_raw(partition, position+j, "!", 1);
-			break;
-		}
-		if(cache[i] == RECV_MODE_CMD)
-		{
-			esp_partition_write_raw(partition, position+j, &cache[i], 6);
-			j += 6;
-		}
-	}
-	free(cache);
-	cache = NULL;
-	if(!j)
-	{
-		memory[idl+256*idh] = 1;
-		save_memory_system();
-	}
-	return 1;
+    uint16_t index = idl + 256 * idh;
+    if ((index < 2) || (index > 20) || (memory[index] != 4) || (!key))
+        return 0;
+
+    uint32_t position = 4096 * index;
+    uint8_t* cache = (uint8_t*)malloc(4096);
+    if (!cache)
+        return 0;  // Lỗi cấp phát bộ nhớ
+
+    esp_err_t err = esp_partition_read_raw(partition, position, cache, 4096);
+    if (err != ESP_OK){
+        free(cache);
+        return 0;  // Lỗi đọc flash
+    }
+
+    uint16_t i, j = 0;
+    uint8_t found = 0;
+
+    // Tìm và xóa khóa
+    for (i = 0; i < 4096; i += 6)
+    {
+        if (cache[i] == '!')
+            break;
+        if ((cache[i] == RECV_MODE_CMD) && (cache[i + 1] == key)){
+            cache[i] = 0;
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found){
+        free(cache);
+        return 0;  // Không tìm thấy key
+    }
+
+    // Xóa vùng nhớ flash
+    err = esp_partition_erase_range(partition, position, 4096);
+    if (err != ESP_OK){
+        free(cache);
+        return 0;  // Lỗi xóa flash
+    }
+
+    // Ghi lại dữ liệu
+    for (i = 0; i < 4096; i += 6)
+    {
+        if (cache[i] == '!')
+        {
+            err = esp_partition_write_raw(partition, position + j, "!", 1);
+			if (err != ESP_OK){
+				free(cache);
+				return 0;  // Lỗi thao tác flash
+			}
+            break;
+        }
+        if (cache[i] == RECV_MODE_CMD)
+        {
+            err = esp_partition_write_raw(partition, position + j, &cache[i], 6);
+			if (err != ESP_OK){
+				free(cache);
+				return 0;  // Lỗi thao tác flash
+			}
+            j += 6;
+        }
+    }
+
+    free(cache);
+
+    // Nếu không còn dữ liệu hợp lệ, cập nhật trạng thái vùng nhớ
+    if (!j)
+    {
+        memory[index] = 1;
+        save_memory_system();
+    }
+
+    return 1;  // Thành công
 }
 
+	
+/*
+Fix thêm trường hợp malloc không thành công thì return
+Fix thêm trường hợp không check được key cần xoá thì return luôn
+
+*/
 uint8_t add_raw_key(rmt_item32_t* items, uint16_t number, uint8_t idl, uint8_t idh, uint8_t key)
 {
 	if(((memory[idl+256*idh] != 1) && (memory[idl+256*idh] != 4)) || (idl+256*idh < 2) || (idl+256*idh > 20) || (!key)) return 0;
@@ -553,6 +704,7 @@ uint8_t add_raw_key(rmt_item32_t* items, uint16_t number, uint8_t idl, uint8_t i
 	uint16_t i;
 	uint16_t j;
 	uint8_t k = 0;
+	esp_err_t err;
 	for(i=TOP_DATA_MEMORY; i>BOTTOM_DATA_MEMORY; i--)
 	{
 		for(j=8; j>0; j--)
@@ -568,13 +720,19 @@ uint8_t add_raw_key(rmt_item32_t* items, uint16_t number, uint8_t idl, uint8_t i
 		if(k == number/128 + 1) break;
 	}
 	if(k < number/128 + 1) return 0;
-	uint8_t* cache = (uint8_t*)malloc(4096);
 	uint32_t position = 4096*(idl+256*idh);
-	esp_partition_read_raw(partition, position, cache, 4096);
+	uint8_t* cache = (uint8_t*)malloc(4096);
+    if(cache == NULL)
+        return 0;  // Lỗi cấp phát bộ nhớ
+
+	err = esp_partition_read_raw(partition, position, cache, 4096);
+	if (err != ESP_OK){
+        free(cache);
+        return 0;  // Lỗi đọc flash
+    }
 	for(i=0; i<4096; i+=6)
 	{
-		if(cache[i] == '!')
-		{
+		if(cache[i] == '!'){
 			cache[i] = RECV_MODE_CMD;
 			cache[i+1] = key;
 			cache[i+2] = matrix[0];
@@ -584,8 +742,7 @@ uint8_t add_raw_key(rmt_item32_t* items, uint16_t number, uint8_t idl, uint8_t i
 			cache[i+6] = '!';
 			break;
 		}
-		if((cache[i] == RECV_MODE_CMD) && (cache[i+1] == key))
-		{
+		if((cache[i] == RECV_MODE_CMD) && (cache[i+1] == key)){
 			cache[i+2] = matrix[0];
 			cache[i+3] = matrix[1];
 			cache[i+4] = matrix[2];
@@ -593,13 +750,22 @@ uint8_t add_raw_key(rmt_item32_t* items, uint16_t number, uint8_t idl, uint8_t i
 			break;
 		}
 	}
-	esp_partition_erase_range(partition, position, 4096);
-	esp_partition_write_raw(partition, position, cache, 4096);
+	err = esp_partition_erase_range(partition, position, 4096);
+	if (err != ESP_OK){
+		return 0;  // Lỗi thao tác flash
+	}
+	err = esp_partition_write_raw(partition, position, cache, 4096);
+	if (err != ESP_OK){
+		return 0;  // Lỗi thao tác flash
+	}
 	j = 0;
 	for(k=0; k<1+number/128; k++)
 	{
 		position = 4096*matrix[2*k];
-		esp_partition_read_raw(partition, position, cache, 4096);
+		err = esp_partition_read_raw(partition, position, cache, 4096);
+		if (err != ESP_OK){
+			return 0;  // Lỗi thao tác flash
+		}
 		position = 512*matrix[2*k+1];
 		for(i=0; i<512; i+=4)
 		{
@@ -611,13 +777,19 @@ uint8_t add_raw_key(rmt_item32_t* items, uint16_t number, uint8_t idl, uint8_t i
 			if(j >= number) break;
 		}
 		position = 4096*matrix[2*k];
-		esp_partition_erase_range(partition, position, 4096);
-		esp_partition_write_raw(partition, position, cache, 4096);
+		err = esp_partition_erase_range(partition, position, 4096);
+		if (err != ESP_OK){
+			return 0;  // Lỗi thao tác flash
+		}
+		err = esp_partition_write_raw(partition, position, cache, 4096);
+		if (err != ESP_OK){
+			return 0;  // Lỗi thao tác flash
+		}
 	}
+
 	free(cache);
 	cache = NULL;
-	if(memory[idl+256*idh] != 4)
-	{
+	if(memory[idl+256*idh] != 4){
 		memory[idl+256*idh] = 4;
 		save_memory_system();
 	}
@@ -626,6 +798,7 @@ uint8_t add_raw_key(rmt_item32_t* items, uint16_t number, uint8_t idl, uint8_t i
 
 uint8_t choose_raw_key(uint8_t idl, uint8_t idh, uint8_t temp, uint8_t mode, uint8_t fan)
 {
+	esp_err_t err;
 	if((idl+256*idh<2) || (idl+256*idh>20) || (memory[idl+256*idh] != 4)) return 0;
 	uint16_t i;
 	uint8_t min = 255;
@@ -633,7 +806,11 @@ uint8_t choose_raw_key(uint8_t idl, uint8_t idh, uint8_t temp, uint8_t mode, uin
 	uint8_t cache[2];
 	for(i=0; i<4096; i+=6)
 	{
-		esp_partition_read_raw(partition, position+i, cache, 2);
+		err = esp_partition_read_raw(partition, position+i, cache, 2);
+		if (err != ESP_OK)
+		{
+			return 0;  // Lỗi thao tác flash
+		}
 		if(cache[0] == '!') break;
 		if(cache[0] == RECV_MODE_CMD)
 		{
@@ -653,42 +830,64 @@ uint8_t choose_raw_key(uint8_t idl, uint8_t idh, uint8_t temp, uint8_t mode, uin
 	return min;
 }
 
-void load_custom_remote(uint8_t index)
+uint8_t load_custom_remote(uint8_t index)
 {
-	if((!params[index+3]) || (memory[params[index+1]+256*params[index+2]] != 2) || (params[index+1]+256*params[index+2] < 21)) return;
+	if((!params[index+3]) || (memory[params[index+1]+256*params[index+2]] != 2) || (params[index+1]+256*params[index+2] < 21)) return 0;
 	uint32_t position = (params[index+1]+256*params[index+2]) * 4096;
 	uint16_t i = 0;
 	uint16_t start;
 	uint8_t id;
 	uint8_t data;
 	struct CUSTOM_IR custom_ir;
+	int64_t start_time, current_time;  // Biến lưu thời gian để kiểm tra timeout
+	esp_err_t err;
 	while(1)
 	{
 		id = 0;
 		start = i;
 		while(1)
 		{
-			esp_partition_read_raw(partition, position+i, &data, 1);
-			if(data == ',') break;
+			err = esp_partition_read_raw(partition, position+i, &data, 1);
+			if (err != ESP_OK){
+				return 0;  // Lỗi thao tác flash
+			}
+			if(data == ',') {
+				break;
+			}
 			id = 10 * id + data - 48;
 			i++;
 		}
-		if(id == params[index+3]) break;
+		if(id == params[index+3]) {
+			break;
+		}
 		while(1)
 		{
-			esp_partition_read_raw(partition, position+i, &data, 1);
+			err = esp_partition_read_raw(partition, position+i, &data, 1);
+			if (err != ESP_OK){
+				return 0;  // Lỗi thao tác flash
+			}
 			i++;
-			if(data == ';') break;
+			if(data == ';') {
+				break;
+			}
 		}
-		esp_partition_read_raw(partition, position+i, &data, 1);
-		if(data == '!') break;
+		err = esp_partition_read_raw(partition, position+i, &data, 1);
+		if (err != ESP_OK){
+			return 0;  // Lỗi thao tác flash
+		}
+		if(data == '!') {
+			break;
+		}
 	}
 	if(id != params[index+3]) return;
 	uint8_t j;
 	i = start;
 	while(1)
 	{
-		esp_partition_read_raw(partition, position+i, &data, 1);
+		err = esp_partition_read_raw(partition, position+i, &data, 1);
+		if (err != ESP_OK){
+			return 0;  // Lỗi thao tác flash
+		}
 		i++;
 		if(data == ',') break;
 	}
@@ -697,13 +896,19 @@ void load_custom_remote(uint8_t index)
 		custom_ir.logic_ir[j] = 0;
 		while(1)
 		{
-			esp_partition_read_raw(partition, position+i, &data, 1);
+			err = esp_partition_read_raw(partition, position+i, &data, 1);
+			if (err != ESP_OK){
+				return 0;  // Lỗi thao tác flash
+			}
 			i++;
 			if(data == ',') break;
 			custom_ir.logic_ir[j] = 10 * custom_ir.logic_ir[j] + data - 48;
 		}
 	}
-	esp_partition_read_raw(partition, position+i, &data, 1);
+	err = esp_partition_read_raw(partition, position+i, &data, 1);
+	if (err != ESP_OK){
+		return 0;  // Lỗi thao tác flash
+	}
 	custom_ir.number_section_ir = data - 48;
 	i += 2;
 	for(j=0; j<custom_ir.number_section_ir; j++)
@@ -711,7 +916,10 @@ void load_custom_remote(uint8_t index)
 		custom_ir.size_section_ir[j] = 0;
 		while(1)
 		{
-			esp_partition_read_raw(partition, position+i, &data, 1);
+			err = esp_partition_read_raw(partition, position+i, &data, 1);
+			if (err != ESP_OK){
+				return 0;  // Lỗi thao tác flash
+			}
 			i++;
 			if(data == ',') break;
 			custom_ir.size_section_ir[j] = 10 * custom_ir.size_section_ir[j] + data - 48;
@@ -722,7 +930,10 @@ void load_custom_remote(uint8_t index)
 		custom_ir.section_ir[j] = 0;
 		while(1)
 		{
-			esp_partition_read_raw(partition, position+i, &data, 1);
+			err =  esp_partition_read_raw(partition, position+i, &data, 1);
+			if (err != ESP_OK){
+				return 0;  // Lỗi thao tác flash
+			}
 			i++;
 			if(data == ',') break;
 			custom_ir.section_ir[j] = 10 * custom_ir.section_ir[j] + data - 48;
@@ -735,9 +946,18 @@ void load_custom_remote(uint8_t index)
 	for(j=0; j<4*custom_ir.number_section_ir; j++) remote_param_ir[j+custom_ir.number_section_ir+5] = custom_ir.section_ir[j];
 	
 	remote_code3_ir = (uint64_t*)malloc(136);
-	if(custom_ir.size_section_ir[custom_ir.number_section_ir-1] > 64) remote_code2_ir = (uint64_t*)malloc(136);
-	if(custom_ir.size_section_ir[custom_ir.number_section_ir-1] > 128) remote_code1_ir = (uint64_t*)malloc(136);
-	if(custom_ir.size_section_ir[custom_ir.number_section_ir-1] > 192) remote_code0_ir = (uint64_t*)malloc(136);
+	if (remote_code3_ir == NULL) {
+		return 0;
+	}
+	if(custom_ir.size_section_ir[custom_ir.number_section_ir-1] > 64) {
+		remote_code2_ir = (uint64_t*)malloc(136);
+	}
+	if(custom_ir.size_section_ir[custom_ir.number_section_ir-1] > 128) {
+		remote_code1_ir = (uint64_t*)malloc(136);
+	}
+	if(custom_ir.size_section_ir[custom_ir.number_section_ir-1] > 192) {
+		remote_code0_ir = (uint64_t*)malloc(136);
+	}
 	
 	for(j=0; j<17; j++)
 	{
@@ -756,10 +976,12 @@ void load_custom_remote(uint8_t index)
 		custom_ir.result_section_ir[3] = 0;
 		while(1)
 		{
-			esp_partition_read_raw(partition, position+i, &data, 1);
+			err = esp_partition_read_raw(partition, position+i, &data, 1);
+			if (err != ESP_OK){
+				return 0;  // Lỗi thao tác flash
+			}
 			i++;
-			if((data == ',') || (data == ';'))
-			{
+			if((data == ',') || (data == ';')){
 				remote_code3_ir[k] = custom_ir.result_section_ir[3];
 				if(remote_code2_ir != NULL) remote_code2_ir[k] = custom_ir.result_section_ir[2];
 				if(remote_code1_ir != NULL) remote_code1_ir[k] = custom_ir.result_section_ir[1];
@@ -767,19 +989,26 @@ void load_custom_remote(uint8_t index)
 				k++;
 				break;
 			}
-			if((data >= '0') && (data <= '9')) data -= 48;
-			else
-			{
+			if((data >= '0') && (data <= '9')) {
+				data -= 48;
+			}
+			else{
 				if((data >= 'A') && (data <= 'F')) data -= 55;
 			}
-			if(j < 16) custom_ir.result_section_ir[3] = 16 * custom_ir.result_section_ir[3] + data;
-			else
-			{
-				if(j < 32) custom_ir.result_section_ir[2] = 16 * custom_ir.result_section_ir[2] + data;
-				else
-				{
-					if(j < 48) custom_ir.result_section_ir[1] = 16 * custom_ir.result_section_ir[1] + data;
-					else custom_ir.result_section_ir[0] = 16 * custom_ir.result_section_ir[0] + data;
+			if(j < 16) {
+				custom_ir.result_section_ir[3] = 16 * custom_ir.result_section_ir[3] + data;
+			}
+			else{
+				if(j < 32) {
+					custom_ir.result_section_ir[2] = 16 * custom_ir.result_section_ir[2] + data;
+				}
+				else{
+					if(j < 48) {
+						custom_ir.result_section_ir[1] = 16 * custom_ir.result_section_ir[1] + data;
+					}
+					else {
+						custom_ir.result_section_ir[0] = 16 * custom_ir.result_section_ir[0] + data;
+					}
 				}
 			}
 			j++;
@@ -810,10 +1039,10 @@ void delete_custom_remote()
 		free(remote_code2_ir);
 		remote_code2_ir = NULL;
 	}
-	if(remote_code2_ir != NULL)
+	if(remote_code3_ir != NULL)
 	{
-		free(remote_code2_ir);
-		remote_code2_ir = NULL;
+		free(remote_code3_ir);
+		remote_code3_ir = NULL;
 	}
 }
 
@@ -878,7 +1107,10 @@ uint8_t add_script(uint8_t idl, uint8_t idh, uint8_t info1, uint8_t info2, uint8
 	}
 	uint16_t i;
 	uint8_t* cache = (uint8_t*)malloc(4096);
-	esp_partition_read_raw(partition, 4096, cache, 4096);
+	esp_err_t err = esp_partition_read_raw(partition, 4096, cache, 4096);
+	if(err != ESP_OK || cache == NULL){
+		return 0;
+	}
 	for(i=0; i<4096; i+=11)
 	{
 		if(cache[i] == '!')
@@ -918,8 +1150,16 @@ uint8_t add_script(uint8_t idl, uint8_t idh, uint8_t info1, uint8_t info2, uint8
 			}
 		}
 	}
-	esp_partition_erase_range(partition, 4096, 4096);
-	esp_partition_write_raw(partition, 4096, cache, 4096);
+	err = esp_partition_erase_range(partition, 4096, 4096);
+	if(err != ESP_OK){
+		free(cache);
+		return 0;
+	}
+	err = esp_partition_write_raw(partition, 4096, cache, 4096);
+	if(err != ESP_OK){
+		free(cache);
+		return 0;
+	}
 	free(cache);
 	cache = NULL;
 	return 1;
@@ -951,7 +1191,10 @@ uint8_t delete_script(uint8_t idl, uint8_t idh, uint8_t info1, uint8_t info2, ui
 	}
 	uint16_t i;
 	uint8_t* cache = (uint8_t*)malloc(4096);
-	esp_partition_read_raw(partition, 4096, cache, 4096);
+	esp_err_t err = esp_partition_read_raw(partition, 4096, cache, 4096);
+	if(err != ESP_OK || cache == NULL){
+		return 0;
+	}
 	for(i=0; i<4096; i+=11)
 	{
 		if(cache[i] == '!')
@@ -1004,7 +1247,10 @@ void delete_action(uint8_t idl, uint8_t idh, uint8_t index)
 {
 	uint16_t i;
 	uint8_t* cache = (uint8_t*)malloc(4096);
-	esp_partition_read_raw(partition, 4096, cache, 4096);
+	esp_err_t err = esp_partition_read_raw(partition, 4096, cache, 4096);
+	if(err != ESP_OK || cache == NULL){
+		return 0;
+	}
 	for(i=0; i<4096; i+=11)
 	{
 		if(cache[i] == '!') break;
@@ -1034,7 +1280,10 @@ uint8_t delete_all_script(uint8_t idl, uint8_t idh)
 	uint16_t i;
 	uint8_t isok = 0;
 	uint8_t* cache = (uint8_t*)malloc(4096);
-	esp_partition_read_raw(partition, 4096, cache, 4096);
+	esp_err_t err = esp_partition_read_raw(partition, 4096, cache, 4096);
+	if(err != ESP_OK || cache == NULL){
+		return 0;
+	}
 	for(i=0; i<4096; i+=11)
 	{
 		if(cache[i] == '!') break;
@@ -1072,12 +1321,15 @@ uint8_t find_script(uint8_t idl, uint8_t idh)
 	uint16_t i;
 	uint8_t cache[11];
 	uint8_t isfind = 0;
+	esp_err_t err;
 	for(i=0; i<4096; i+=11)
 	{
-		esp_partition_read_raw(partition, 4096+i, cache, 11);
+		err = esp_partition_read_raw(partition, 4096+i, cache, 11);
+		if(err != ESP_OK){
+			return 0;
+		}
 		if(cache[0] == '!') break;
-		if((cache[4]+256*cache[5] == idl+256*idh) && (!cache[3]))
-		{
+		if((cache[4]+256*cache[5] == idl+256*idh) && (!cache[3])){
 			isfind = 1;
 			ble_mesh_send(0xFFFF, 0x8243, 3, cache[1], cache[2], 1, 0, 0, 0, 0, 0);
 		}
@@ -1089,7 +1341,10 @@ void set_status_script(uint8_t idl, uint8_t idh, uint8_t status)
 {
 	uint16_t i;
 	uint8_t* cache = (uint8_t*)malloc(4096);
-	esp_partition_read_raw(partition, 4096, cache, 4096);
+	esp_err_t err = esp_partition_read_raw(partition, 4096, cache, 4096);
+	if(err != ESP_OK || cache == NULL){
+		return 0;
+	}
 	for(i=0; i<4096; i+=11)
 	{
 		if(cache[i] == '!') break;
@@ -1130,9 +1385,13 @@ void send_list_script()
 	uint8_t index = 3;
 	script[0] = 243;
 	script[1] = 0;
+	esp_err_t err;
 	for(i=0; i<4096; i+=11)
 	{
-		esp_partition_read_raw(partition, 4096+i, cache, 11);
+		err = esp_partition_read_raw(partition, 4096+i, cache, 11);
+		if(err != ESP_OK){
+			return 0;
+		}
 		if(cache[0] == '!') break;
 		for(j=3; j<index; j+=2)
 		{
@@ -1228,7 +1487,10 @@ void save_status_remote(uint8_t idl, uint8_t idh, uint8_t index, uint8_t temp, u
 	if(!check_list_remote(idl, idh, index)) return;
 	uint16_t i;
 	uint8_t cache[480];
-	esp_partition_read_raw(partition, 0, cache, 480);
+	esp_err_t err = esp_partition_read_raw(partition, 0, cache, 480);
+	if(err != ESP_OK ){
+		return 0;
+	}
 	for(i=0; i<480; i+=24)
 	{
 		if(cache[i] == '!')
@@ -1280,9 +1542,13 @@ uint8_t load_status_remote(uint8_t idl, uint8_t idh, uint8_t index, uint8_t *sta
 {
 	uint16_t i;
 	uint8_t data[8];
+	esp_err_t err;
 	for(i=0; i<480; i+=24)
 	{
-		esp_partition_read_raw(partition, i, data, 8);
+		err = esp_partition_read_raw(partition, i, data, 8);
+		if(err != ESP_OK){
+			return 0;
+		}
 		if(data[0] == '!') break;
 		if(data[0] == SEND_KEY_CMD)
 		{
@@ -1303,11 +1569,13 @@ void set_position_remote(uint8_t idl, uint8_t idh, uint8_t index, uint8_t* posit
 {
 	uint16_t i;
 	uint8_t cache[480];
-	esp_partition_read_raw(partition, 0, cache, 480);
+	esp_err_t err = esp_partition_read_raw(partition, 0, cache, 480);
+	if(err != ESP_OK){
+		return 0;
+	}
 	for(i=0; i<480; i+=24)
 	{
-		if(cache[i] == '!')
-		{
+		if(cache[i] == '!'){
 			cache[i] = SEND_KEY_CMD;
 			cache[i+1] = idl;
 			cache[i+2] = idh;
@@ -1335,8 +1603,7 @@ void set_position_remote(uint8_t idl, uint8_t idh, uint8_t index, uint8_t* posit
 			cache[i+24] = '!';
 			break;
 		}
-		if(cache[i] == SEND_KEY_CMD)
-		{
+		if(cache[i] == SEND_KEY_CMD){
 			if((cache[i+1] == idl) && (cache[i+2] == idh) && (cache[i+3] == index))
 			{
 				cache[i+8] = position[0];
@@ -1367,9 +1634,13 @@ void load_position_remote(uint8_t idl, uint8_t idh, uint8_t index, uint8_t *posi
 {
 	uint16_t i;
 	uint8_t data[24];
+	esp_err_t err;
 	for(i=0; i<480; i+=24)
 	{
-		esp_partition_read_raw(partition, i, data, 24);
+		err = esp_partition_read_raw(partition, i, data, 24);
+		if(err != ESP_OK){
+			return 0;
+		}
 		if(data[0] == '!') break;
 		if(data[0] == SEND_KEY_CMD)
 		{
@@ -1432,52 +1703,46 @@ void find_power_custom(uint8_t index)
 					if(((remote_code2_ir[1] & (one << i)) ^ (remote_code2_ir[j] & (one << i))) == 0) error2 = 1;
 				}
 			}
-			else error2 = 1;
-			if(remote_code1_ir != NULL)
-			{
-				if (remote_code1_ir[j] && remote_code1_ir[1])
-				{
+			else {
+				error2 = 1;
+			}
+			if(remote_code1_ir != NULL){
+				if (remote_code1_ir[j] && remote_code1_ir[1]){
 					if(((remote_code1_ir[1] & (one << i)) ^ (remote_code1_ir[j] & (one << i))) == 0) error1 = 1;
 				}
 			}
-			else error1 = 1;
-			if(remote_code0_ir != NULL)
-			{
-				if (remote_code0_ir[j] && remote_code0_ir[1])
-				{
+			else {
+				error1 = 1;
+			}
+			if(remote_code0_ir != NULL){
+				if (remote_code0_ir[j] && remote_code0_ir[1]){
 					if(((remote_code0_ir[1] & (one << i)) ^ (remote_code0_ir[j] & (one << i))) == 0) error0 = 1;
 				}
 			}
-			else error0 = 1;
+			else {
+				error0 = 1;
+			}
 		}
-		if(error3 == 0)
-		{
-			if(k < 16)
-			{
+		if(error3 == 0){
+			if(k < 16){
 				position[k] = i;
 				k++;
 			}
 		}
-		if(error2 == 0)
-		{
-			if(k < 16)
-			{
+		if(error2 == 0){
+			if(k < 16){
 				position[k] = i+64;
 				k++;
 			}
 		}
-		if(error1 == 0)
-		{
-			if(k < 16)
-			{
+		if(error1 == 0){
+			if(k < 16){
 				position[k] = i+128;
 				k++;
 			}
 		}
-		if(error0 == 0)
-		{
-			if(k < 16)
-			{
+		if(error0 == 0){
+			if(k < 16){
 				position[k] = i+192;
 				k++;
 			}
@@ -1493,18 +1758,20 @@ void find_power_raw(uint8_t index)
 	uint16_t i;
 	uint8_t j = 2;
 	uint8_t cache[6];
+	esp_err_t err;
 	for(i=0; i<4096; i+=6)
 	{
-		esp_partition_read_raw(partition, 4096*(params[index+1]+256*params[index+2])+i, cache, 6);
+		err = esp_partition_read_raw(partition, 4096*(params[index+1]+256*params[index+2])+i, cache, 6);
+		if(err != ESP_OK){
+			return 0;
+		}
 		if(cache[0] == '!') break;
-		if(cache[1] > 1)
-		{
+		if(cache[1] > 1){
 			addr[j] = 4096*cache[2]+512*cache[3];
 			addr[j+1] = 4096*cache[4]+512*cache[5];
 			j += 2;
 		}
-		else
-		{
+		else{
 			addr[0] = 4096*cache[2]+512*cache[3];
 			addr[1] = 4096*cache[4]+512*cache[5];
 		}
@@ -1520,13 +1787,19 @@ void find_power_raw(uint8_t index)
 	for(i=0; i<512; i+=4)
 	{
 		error = 0;
-		esp_partition_read_raw(partition, addr[0]+i, cache, 4);
+		err = esp_partition_read_raw(partition, addr[0]+i, cache, 4);
+		if(err != ESP_OK){
+			return 0;
+		}
 		sampleduration0 = 256*cache[0]+cache[1];
 		sampleduration1 = 256*cache[2]+cache[3];
 		for(j=2; j<32; j+=2)
 		{
 			if(!addr[j]) break;
-			esp_partition_read_raw(partition, addr[j]+i, cache, 4);
+			err = esp_partition_read_raw(partition, addr[j]+i, cache, 4);
+			if(err != ESP_OK){
+				return 0;
+			}
 			duration0 = 256*cache[0]+cache[1];
 			duration1 = 256*cache[2]+cache[3];
 			if(sampleduration1 * duration1 == 0) break;
@@ -1551,27 +1824,30 @@ void find_power_raw(uint8_t index)
 		for(i=0; i<512; i+=4)
 		{
 			error = 0;
-			esp_partition_read_raw(partition, addr[1]+i, cache, 4);
+			err = esp_partition_read_raw(partition, addr[1]+i, cache, 4);
+			if(err != ESP_OK){
+				return 0;
+			}
 			sampleduration0 = 256*cache[0]+cache[1];
 			sampleduration1 = 256*cache[2]+cache[3];
 			for(j=3; j<32; j+=2)
 			{
 				if(!addr[j]) break;
-				esp_partition_read_raw(partition, addr[j]+i, cache, 4);
+				err = esp_partition_read_raw(partition, addr[j]+i, cache, 4);
+				if(err != ESP_OK){
+					return 0;
+				}
 				duration0 = 256*cache[0]+cache[1];
 				duration1 = 256*cache[2]+cache[3];
 				if(sampleduration1 * duration1 == 0) break;
-				if((duration0 > sampleduration0-50) && (duration0 < sampleduration0+50) && (duration1 > sampleduration1-50) && (duration1 < sampleduration1+50))
-				{
+				if((duration0 > sampleduration0-50) && (duration0 < sampleduration0+50) && (duration1 > sampleduration1-50) && (duration1 < sampleduration1+50)){
 					error = 1;
 					break;
 				}
 			}
 			if(sampleduration1 * duration1 == 0) break;
-			if(!error)
-			{
-				if(k < 16)
-				{
+			if(!error){
+				if(k < 16){
 					position[k] = 128+i/4;
 					k++;
 				}

@@ -15,6 +15,7 @@
 #include "settings.h"
 #include "storage/settings_nvs.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 
 #define TOP_DATA_MEMORY 255
 #define BOTTOM_DATA_MEMORY 114
@@ -47,6 +48,13 @@
 #define PIN_BOOT	GPIO_NUM_18
 #define BUTTON		GPIO_NUM_4
 
+#define TIME_OUT_F_SAVE_FLASH_US 		120000000
+#define TIME_OUT_WAITING_UART_US 		20000000
+#define TIME_OUT_WAITING_RW_FLASH_US 	5000000	
+
+
+
+
 struct CUSTOM_IR
 {
 	uint8_t number_section_ir;
@@ -56,6 +64,8 @@ struct CUSTOM_IR
 	uint64_t result_section_ir[4];
 };
 
+
+extern const char* LOG = "HOMEGY";
 extern uint8_t request[8];
 extern uint8_t memory[512];
 extern uint8_t lockdevice;
@@ -126,7 +136,7 @@ uint8_t check_raw_key(uint8_t idl, uint8_t idh);
 uint8_t delete_raw_key(uint8_t idl, uint8_t idh, uint8_t key);
 uint8_t add_raw_key(rmt_item32_t* items, uint16_t number, uint8_t idl, uint8_t idh, uint8_t key);
 uint8_t choose_raw_key(uint8_t idl, uint8_t idh, uint8_t temp, uint8_t mode, uint8_t fan);
-void load_custom_remote(uint8_t index);
+uint8_t load_custom_remote(uint8_t index);
 void delete_custom_remote();
 uint8_t add_script(uint8_t idl, uint8_t idh, uint8_t info1, uint8_t info2, uint8_t info3, uint8_t info4, uint8_t info5);
 uint8_t delete_script(uint8_t idl, uint8_t idh, uint8_t info1, uint8_t info2, uint8_t info3, uint8_t info4);
